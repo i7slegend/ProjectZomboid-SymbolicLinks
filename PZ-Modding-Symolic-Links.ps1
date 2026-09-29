@@ -93,21 +93,12 @@ else
 # Check for SteamCMD in valid library folders and fallback paths
 $steamCMDPaths = @()
 
-foreach ($folder in $validSteamLibraryFolders) 
+$possibleSteamCmdPath = @((Join-Path $validSteamLibraryFolders "SteamCMD"), "C:\SteamCMD", "D:\SteamCMD") | ForEach-Object { $_ }
+foreach ($possiblePath in $possibleSteamCmdPath) 
 {
-    $possiblePath = Join-Path $folder "SteamCMD"
     if ((Test-Path $possiblePath) -and (Test-Path (Join-Path $possiblePath "steamcmd.exe"))) 
     {
         $steamCMDPaths += $possiblePath
-    }
-}
-
-$fallbackPaths = @("C:\SteamCMD", "D:\SteamCMD")
-foreach ($path in $fallbackPaths) 
-{
-    if ((Test-Path $path) -and (Test-Path (Join-Path $path "steamcmd.exe"))) 
-    {
-        $steamCMDPaths += $path
     }
 }
 
