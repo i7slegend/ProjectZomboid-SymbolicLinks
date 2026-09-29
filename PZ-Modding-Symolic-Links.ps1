@@ -68,12 +68,12 @@ if (-not (Test-Path $libraryFoldersPath))
 $libraryFolders = Get-Content $libraryFoldersPath | Where-Object { $_ -match '"path"\s*"(.+?)"' } | ForEach-Object { ($_ -split '"path"\s*"')[1].Trim('"') }
 
 #Verify each library path
-$validLibraryFolders = @()
+$validSteamLibraryFolders = @()
 foreach ($folder in $libraryFolders) 
 {
     if (Test-Path $folder) 
     {
-        $validLibraryFolders += $folder
+        $validSteamLibraryFolders += Join-Path $folder "steamapps"
     } 
     else 
     {
@@ -81,31 +81,19 @@ foreach ($folder in $libraryFolders)
     }
 }
 
-#Check for Steam Client installation
-$steamClientPaths = @()
-foreach ($folder in $validLibraryFolders) 
-{
-    $possiblePath = Join-Path $folder "steamapps"
-    if (Test-Path $possiblePath) 
-    {
-        $steamClientPaths += $possiblePath
-    }
-}
-
-if (-not $steamClientPaths) 
+if (-not $validSteamLibraryFolders) 
 {
     Write-Host "No valid Steam Client installations found." -ForegroundColor Red
 } 
 else 
 {
-    Write-Host "Found Steam Client installations in the following directories:`n$($steamClientPaths -join "`n")"
+    Write-Host "Found Steam Client installations in the following directories:`n$($validSteamLibraryFolders -join "`n")"
 }
 
 # Check for SteamCMD in valid library folders and fallback paths
 $steamCMDPaths = @()
 
-# Check library folders
-foreach ($folder in $validLibraryFolders) 
+foreach ($folder in $validSteamLibraryFolders) 
 {
     $possiblePath = Join-Path $folder "SteamCMD"
     if ((Test-Path $possiblePath) -and (Test-Path (Join-Path $possiblePath "steamcmd.exe"))) 
@@ -114,7 +102,6 @@ foreach ($folder in $validLibraryFolders)
     }
 }
 
-# Check fallback locations
 $fallbackPaths = @("C:\SteamCMD", "D:\SteamCMD")
 foreach ($path in $fallbackPaths) 
 {
@@ -134,7 +121,7 @@ else
     foreach ($path in $steamCMDPaths) 
     {
         # Attach SteamCMD folder for workshops checking
-        $validLibraryFolders += Join-Path -Path $path -ChildPath "steamapps"
+        $validSteamLibraryFolders += Join-Path $path "steamapps"
     }
 }
 
@@ -148,7 +135,7 @@ if (-not (Test-Path -Path $zomboidPath))
 }
 # Check each library folder in Steam for "108600"
 $zomboidFolder = $null
-foreach ($library in $validLibraryFolders)
+foreach ($library in $validSteamLibraryFolders)
 {
     $folder = Join-Path $library 'workshop\content\108600'
     Write-Host "Checking workshop folder: $folder"
@@ -179,7 +166,7 @@ $unlinkedWorkshopNumbers = @()
 3395592779
 
 # The main chunk of this script to display all outputs
-foreach ($folder in $validLibraryFolders)
+foreach ($folder in $validSteamLibraryFolders)
 {
     $modPath = Join-Path $folder 'workshop\content\108600'
     $appModPath = Join-Path $folder 'content\app_108600'
