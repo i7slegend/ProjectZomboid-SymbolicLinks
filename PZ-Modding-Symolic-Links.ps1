@@ -65,7 +65,7 @@ if (-not (Test-Path $libraryFoldersPath))
 }
 
 #Get the library folders from the ".vdf" file - filter only valid paths
-$libraryFolders = Get-Content $libraryFoldersPath | Where-Object { $_ -match '"path"\s*"(.+?)"' } | ForEach-Object { ($_ -split '"path"\s*"')[1].Trim('"') }
+$libraryFolders = Get-Content $libraryFoldersPath | Where-Object { $_ -match '"path"\s*"(.+?)"' } | ForEach-Object { (($_ -split '"path"\s*"')[1].Trim('"')).Replace('\\', '\') }
 
 #Verify each library path
 $validSteamLibraryFolders = @()
